@@ -1,0 +1,5 @@
+NODE_ENV=development
+PORT=8000
+HOST=
+DB_URL=mongodb+srv://<<user_name>>:<<password>>@cluster0.1gjhn.mongodb.net/<<db_name>>?retryWrites=true&w=majority
+JWT_SECRET=
