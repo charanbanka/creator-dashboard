@@ -9,11 +9,11 @@ const activitySchema = mongoose.Schema(
     feedId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Feed",
-      required: true,
+      required: false,
     },
     action: {
       type: String,
-      enum: ["save", "share", "report"],
+      enum: ["save", "share", "report", "profile_completion", "daily_login", "unsave"],
       required: true,
     },
     metadata: {
@@ -22,6 +22,14 @@ const activitySchema = mongoose.Schema(
         default: "",
       },
       reportReason: {
+        type: String,
+        default: "",
+      },
+      postTitle: {
+        type: String,
+        default: "",
+      },
+      postSource: {
         type: String,
         default: "",
       },

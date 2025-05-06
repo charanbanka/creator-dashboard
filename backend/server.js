@@ -32,9 +32,7 @@ mongoose
     console.log("Database connected successfully");
 
     // Start the server only after successful DB connection
-    app.listen(PORT, () => {
-      console.log(`Server running at port: ${PORT}`);
-    });
+   
   })
   .catch((error) => {
     console.error("Database connection error:", error.message);
@@ -44,4 +42,8 @@ mongoose
 // Default route for testing
 app.get("/health", (req, res) => {
   res.send({ status: "ok", message: "Server is healthy" });
+});
+
+app.listen(PORT, () => {
+  console.log(`Server running at port: ${PORT}`);
 });

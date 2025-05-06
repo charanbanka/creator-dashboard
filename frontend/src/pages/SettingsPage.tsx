@@ -1,63 +1,72 @@
-
-import React, { useState } from 'react';
-import { useAuth } from '../contexts/AuthContext';
-import DashboardLayout from '../components/layouts/DashboardLayout';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Separator } from '@/components/ui/separator';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { toast } from 'sonner';
-import { User, Settings } from 'lucide-react';
-import { Switch } from '@/components/ui/switch';
+import React, { useState } from "react";
+import { useAuth } from "../contexts/AuthContext";
+import DashboardLayout from "../components/layouts/DashboardLayout";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { toast } from "sonner";
+import { User, Settings } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import ServiceRequest from "@/lib/service-request";
+import { BASE_URL } from "@/common/config";
+import constants from "@/common/const";
 
 const SettingsPage: React.FC = () => {
-  const { authState, updateUser, addCredits } = useAuth();
+  const { authState, updateUser, addCredits, fetchUserData } = useAuth();
   const { user } = authState;
-  
+
   const [profile, setProfile] = useState({
-    name: user?.name || '',
-    email: user?.email || '',
-    avatar: user?.avatar || '',
+    name: user?.name || "",
+    email: user?.email || "",
+    profilePicture: user?.profilePicture || "",
   });
-  
+
+  console.log("console", user);
+
   const [notifications, setNotifications] = useState({
     email: true,
     push: false,
     marketing: true,
   });
-  
-  const handleProfileUpdate = (e: React.FormEvent) => {
+
+  const handleProfileUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    const wasProfileCompleted = user?.profileCompleted;
-    
-    updateUser({
-      ...profile,
-      profileCompleted: true
+
+    let resp = await ServiceRequest({
+      url: `${BASE_URL}/user/update-profile`,
+      data: profile,
+      method: "POST",
     });
-    
-    toast.success('Profile updated successfully');
-    
-    // Award credits if profile wasn't previously completed
-    if (!wasProfileCompleted) {
-      addCredits(25, 'Profile completion bonus');
+    if (resp.data.status === constants.SERVICE_SUCCESS) {
+      fetchUserData();
+      toast.success("Profile updated successfully");
+    } else {
+      toast.error(resp.data?.message || "Server Error")
     }
   };
-  
+
   const handleNotificationsUpdate = (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success('Notification preferences updated');
+    toast.success("Notification preferences updated");
   };
-  
+
   return (
     <DashboardLayout>
       <div className="space-y-6 animate-fade-in">
         <div className="flex justify-between items-center">
           <h1 className="text-2xl font-bold">Settings</h1>
         </div>
-        
+
         {/* Profile Settings */}
         <Card>
           <CardHeader>
@@ -65,19 +74,21 @@ const SettingsPage: React.FC = () => {
               <User className="mr-2 h-5 w-5" />
               Profile Settings
             </CardTitle>
-            <CardDescription>Manage your account profile information</CardDescription>
+            <CardDescription>
+              Manage your account profile information
+            </CardDescription>
           </CardHeader>
-          
+
           <form onSubmit={handleProfileUpdate}>
             <CardContent className="space-y-6">
               {/* Avatar */}
               <div className="flex flex-col items-center sm:flex-row sm:items-start gap-4">
                 <Avatar className="h-24 w-24">
-                  {profile.avatar ? (
-                    <AvatarImage src={profile.avatar} />
+                  {profile.profilePicture ? (
+                    <AvatarImage src={profile.profilePicture} />
                   ) : (
                     <AvatarFallback className="bg-creator-primary text-white text-xl">
-                      {profile.name?.charAt(0) || 'U'}
+                      {profile.name?.charAt(0) || "U"}
                     </AvatarFallback>
                   )}
                 </Avatar>
@@ -87,16 +98,18 @@ const SettingsPage: React.FC = () => {
                     This will be displayed on your profile and in comments
                   </p>
                   <Input
-                    placeholder="Avatar URL (e.g., https://example.com/avatar.jpg)"
-                    value={profile.avatar || ''}
-                    onChange={(e) => setProfile({ ...profile, avatar: e.target.value })}
+                    placeholder="Avatar URL (e.g., https://example.com/profilePicture.jpg)"
+                    value={profile.profilePicture || ""}
+                    onChange={(e) =>
+                      setProfile({ ...profile, profilePicture: e.target.value })
+                    }
                     className="max-w-md"
                   />
                 </div>
               </div>
-              
+
               <Separator />
-              
+
               {/* Basic Info */}
               <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -106,7 +119,9 @@ const SettingsPage: React.FC = () => {
                       id="name"
                       placeholder="Your name"
                       value={profile.name}
-                      onChange={(e) => setProfile({ ...profile, name: e.target.value })}
+                      onChange={(e) =>
+                        setProfile({ ...profile, name: e.target.value })
+                      }
                     />
                   </div>
                   <div className="space-y-2">
@@ -116,19 +131,22 @@ const SettingsPage: React.FC = () => {
                       type="email"
                       placeholder="Your email"
                       value={profile.email}
-                      onChange={(e) => setProfile({ ...profile, email: e.target.value })}
+                      onChange={(e) =>
+                        setProfile({ ...profile, email: e.target.value })
+                      }
+                      disabled={true}
                     />
                   </div>
                 </div>
               </div>
             </CardContent>
-            
+
             <CardFooter>
               <Button type="submit">Save Profile Changes</Button>
             </CardFooter>
           </form>
         </Card>
-        
+
         {/* Notification Settings */}
         <Card>
           <CardHeader>
@@ -138,55 +156,67 @@ const SettingsPage: React.FC = () => {
             </CardTitle>
             <CardDescription>Control how we contact you</CardDescription>
           </CardHeader>
-          
+
           <form onSubmit={handleNotificationsUpdate}>
             <CardContent className="space-y-6">
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="font-medium">Email Notifications</h3>
-                    <p className="text-sm text-muted-foreground">Receive updates via email</p>
+                    <p className="text-sm text-muted-foreground">
+                      Receive updates via email
+                    </p>
                   </div>
-                  <Switch 
-                    checked={notifications.email} 
-                    onCheckedChange={(checked) => setNotifications({...notifications, email: checked})} 
+                  <Switch
+                    checked={notifications.email}
+                    onCheckedChange={(checked) =>
+                      setNotifications({ ...notifications, email: checked })
+                    }
                   />
                 </div>
-                
+
                 <Separator />
-                
+
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="font-medium">Push Notifications</h3>
-                    <p className="text-sm text-muted-foreground">Receive alerts on your device</p>
+                    <p className="text-sm text-muted-foreground">
+                      Receive alerts on your device
+                    </p>
                   </div>
-                  <Switch 
-                    checked={notifications.push} 
-                    onCheckedChange={(checked) => setNotifications({...notifications, push: checked})} 
+                  <Switch
+                    checked={notifications.push}
+                    onCheckedChange={(checked) =>
+                      setNotifications({ ...notifications, push: checked })
+                    }
                   />
                 </div>
-                
+
                 <Separator />
-                
+
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="font-medium">Marketing Communications</h3>
-                    <p className="text-sm text-muted-foreground">Receive tips and special offers</p>
+                    <p className="text-sm text-muted-foreground">
+                      Receive tips and special offers
+                    </p>
                   </div>
-                  <Switch 
-                    checked={notifications.marketing} 
-                    onCheckedChange={(checked) => setNotifications({...notifications, marketing: checked})} 
+                  <Switch
+                    checked={notifications.marketing}
+                    onCheckedChange={(checked) =>
+                      setNotifications({ ...notifications, marketing: checked })
+                    }
                   />
                 </div>
               </div>
             </CardContent>
-            
+
             <CardFooter>
               <Button type="submit">Save Notification Preferences</Button>
             </CardFooter>
           </form>
         </Card>
-        
+
         {/* Account Settings */}
         <Card>
           <CardHeader>
@@ -195,12 +225,17 @@ const SettingsPage: React.FC = () => {
           </CardHeader>
           <CardContent className="space-y-2">
             <p className="text-sm text-muted-foreground">
-              Once you delete your account, all of your content and data will be permanently removed.
-              This action cannot be undone.
+              Once you delete your account, all of your content and data will be
+              permanently removed. This action cannot be undone.
             </p>
           </CardContent>
           <CardFooter>
-            <Button variant="destructive" onClick={() => toast.error('This feature is not available in the demo')}>
+            <Button
+              variant="destructive"
+              onClick={() =>
+                toast.error("This feature is not available in the demo")
+              }
+            >
               Delete Account
             </Button>
           </CardFooter>

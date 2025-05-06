@@ -1,34 +1,35 @@
-
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useState, useContext, useEffect } from "react";
 import { toast } from "sonner";
-import { AuthState, User } from '../types';
+import { AuthState, User } from "../types";
+import ServiceRequest from "../lib/service-request";
+import { BASE_URL } from "../common/config";
 
 // Mock user data - This would come from a backend API in a real app
 const MOCK_USERS: User[] = [
   {
-    id: '1',
-    name: 'John Doe',
-    email: 'user@example.com',
+    id: "1",
+    name: "John Doe",
+    email: "user@example.com",
     credits: 150,
-    role: 'user',
+    role: "user",
     profileCompleted: true,
     lastLogin: new Date().toISOString(),
-    avatar: 'https://images.unsplash.com/photo-1599566150163-29194dcaad36',
-    createdAt: '2023-01-15T09:24:00Z',
-    savedPosts: ['post1', 'post3']
+    avatar: "https://images.unsplash.com/photo-1599566150163-29194dcaad36",
+    createdAt: "2023-01-15T09:24:00Z",
+    savedPosts: ["post1", "post3"],
   },
   {
-    id: '2',
-    name: 'Admin User',
-    email: 'admin@example.com',
+    id: "2",
+    name: "Admin User",
+    email: "admin@example.com",
     credits: 500,
-    role: 'admin',
+    role: "admin",
     profileCompleted: true,
     lastLogin: new Date().toISOString(),
-    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e',
-    createdAt: '2023-01-10T10:24:00Z',
-    savedPosts: []
-  }
+    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e",
+    createdAt: "2023-01-10T10:24:00Z",
+    savedPosts: [],
+  },
 ];
 
 interface AuthContextType {
@@ -38,201 +39,233 @@ interface AuthContextType {
   logout: () => void;
   updateUser: (userData: Partial<User>) => void;
   addCredits: (amount: number, reason: string) => void;
+  fetchUserData: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [authState, setAuthState] = useState<AuthState>({
     user: null,
     isAuthenticated: false,
     isLoading: true,
-    error: null
+    error: null,
   });
+  const fetchUserData = async (): Promise<void> => {
+    let resp = await ServiceRequest({
+      url: `${BASE_URL}/user/fetch`,
+    });
+    let user = resp.data.data;
+    setAuthState({
+      user,
+      isAuthenticated: true,
+      isLoading: false,
+      error: null,
+    });
+  };
 
   useEffect(() => {
     // Check for stored user in localStorage on initial load
-    const storedUser = localStorage.getItem('creator-dashboard-user');
-    
-    if (storedUser) {
+    const token = localStorage.getItem("token");
+
+    if (token) {
       try {
-        const user = JSON.parse(storedUser);
-        setAuthState({
-          user,
-          isAuthenticated: true,
-          isLoading: false,
-          error: null
-        });
-        
-        // Add daily login credits if it's a new day
-        const lastLogin = new Date(user.lastLogin);
-        const today = new Date();
-        if (lastLogin.toDateString() !== today.toDateString()) {
-          addCredits(10, 'Daily login bonus');
-        }
+        fetchUserData();
       } catch (error) {
-        localStorage.removeItem('creator-dashboard-user');
+        localStorage.removeItem("token");
         setAuthState({
           user: null,
           isAuthenticated: false,
           isLoading: false,
-          error: null
+          error: null,
         });
       }
     } else {
-      setAuthState(prev => ({ ...prev, isLoading: false }));
+      setAuthState((prev) => ({ ...prev, isLoading: false }));
     }
   }, []);
 
   const login = async (email: string, password: string): Promise<void> => {
-    setAuthState(prev => ({ ...prev, isLoading: true, error: null }));
-    
+    setAuthState((prev) => ({ ...prev, isLoading: true, error: null }));
+
     try {
-      // In a real app, this would be an API call
-      const user = MOCK_USERS.find(u => u.email === email);
-      
-      if (user) {
-        // Update last login time
-        const updatedUser = {
-          ...user,
-          lastLogin: new Date().toISOString()
-        };
-        
-        localStorage.setItem('creator-dashboard-user', JSON.stringify(updatedUser));
-        
+      // Create request body
+      const requestBody = {
+        email,
+        password,
+      };
+
+      // Call the backend API for registration
+      const response = await ServiceRequest({
+        url: BASE_URL + "/auth/login", // Replace with your actual API endpoint
+        method: "POST",
+        data: requestBody,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      // Check if the response indicates success
+      if (response.data.status === "success") {
+        // Save user data to localStorage
+        localStorage.setItem("token", response.data.data.token);
+
+        //fetch another api for user data
+        // Update auth state
         setAuthState({
-          user: updatedUser,
+          user: response.data.data.user,
           isAuthenticated: true,
           isLoading: false,
-          error: null
+          error: null,
         });
-        
-        toast.success(`Welcome back, ${user.name}!`, {
-          description: "You've earned 10 credits for logging in today."
+
+        // Show success toast
+        toast.success("Welcome to Creator Dashboard!", {
+          description: "You've received 50 starter credits.",
         });
       } else {
+        // Handle backend error response
         setAuthState({
           user: null,
           isAuthenticated: false,
           isLoading: false,
-          error: 'Invalid email or password'
+          error: response.data.message || "Login failed",
         });
-        toast.error('Login failed', { description: 'Invalid email or password' });
+        toast.error("Login failed", {
+          description: response.data.message || "An unexpected error occurred",
+        });
       }
     } catch (error) {
       setAuthState({
         user: null,
         isAuthenticated: false,
         isLoading: false,
-        error: 'An error occurred during login'
+        error: "An error occurred during login",
       });
-      toast.error('Login failed', { description: 'An unexpected error occurred' });
+      toast.error("Login failed", {
+        description: "An unexpected error occurred",
+      });
     }
   };
+  const register = async (
+    name: string,
+    email: string,
+    password: string
+  ): Promise<void> => {
+    setAuthState((prev) => ({ ...prev, isLoading: true, error: null }));
 
-  const register = async (name: string, email: string, password: string): Promise<void> => {
-    setAuthState(prev => ({ ...prev, isLoading: true, error: null }));
-    
     try {
-      // Check if email already exists
-      const existingUser = MOCK_USERS.find(u => u.email === email);
-      
-      if (existingUser) {
+      // Create request body
+      const requestBody = {
+        name,
+        email,
+        password,
+      };
+
+      // Call the backend API for registration
+      const response = await ServiceRequest({
+        url: BASE_URL + "/auth/register", // Replace with your actual API endpoint
+        method: "POST",
+        data: requestBody,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      // Check if the response indicates success
+      if (response.data.status === "success") {
+        // Save user data to localStorage
+        console.log("db", response.data);
+        localStorage.setItem("token", response.data.data.token);
+
+        //fetch another api for user data
+        // Update auth state
+        setAuthState({
+          user: response.data.data.user,
+          isAuthenticated: true,
+          isLoading: false,
+          error: null,
+        });
+
+        // Show success toast
+        toast.success("Welcome to Creator Dashboard!", {
+          description: "You've received 50 starter credits.",
+        });
+      } else {
+        // Handle backend error response
         setAuthState({
           user: null,
           isAuthenticated: false,
           isLoading: false,
-          error: 'Email already registered'
+          error: response.data.message || "Registration failed",
         });
-        toast.error('Registration failed', { description: 'Email already registered' });
-        return;
+        toast.error("Registration failed", {
+          description: response.data.message || "An unexpected error occurred",
+        });
       }
-      
-      // In a real app, this would create a user in the database
-      const newUser: User = {
-        id: `user-${Date.now()}`,
-        name,
-        email,
-        credits: 50, // Starting credits
-        role: 'user',
-        profileCompleted: false,
-        lastLogin: new Date().toISOString(),
-        createdAt: new Date().toISOString(),
-        savedPosts: []
-      };
-      
-      localStorage.setItem('creator-dashboard-user', JSON.stringify(newUser));
-      
-      setAuthState({
-        user: newUser,
-        isAuthenticated: true,
-        isLoading: false,
-        error: null
-      });
-      
-      toast.success('Welcome to Creator Dashboard!', {
-        description: "You've received 50 starter credits."
-      });
-    } catch (error) {
+    } catch (error: any) {
+      // Handle unexpected errors
       setAuthState({
         user: null,
         isAuthenticated: false,
         isLoading: false,
-        error: 'An error occurred during registration'
+        error:
+          error.response?.data?.message || error.message || "An error occurred",
       });
-      toast.error('Registration failed', { description: 'An unexpected error occurred' });
+      toast.error("Registration failed", {
+        description:
+          error.response?.data?.message || "An unexpected error occurred",
+      });
     }
   };
 
   const logout = () => {
-    localStorage.removeItem('creator-dashboard-user');
+    localStorage.removeItem("token");
     setAuthState({
       user: null,
       isAuthenticated: false,
       isLoading: false,
-      error: null
+      error: null,
     });
-    toast.info('You have been logged out');
+    toast.info("You have been logged out");
   };
 
   const updateUser = (userData: Partial<User>) => {
     if (!authState.user) return;
-    
+
     const updatedUser = { ...authState.user, ...userData };
-    localStorage.setItem('creator-dashboard-user', JSON.stringify(updatedUser));
-    
+    // localStorage.setItem("creator-dashboard-user", JSON.stringify(updatedUser));
+
     setAuthState({
       user: updatedUser,
       isAuthenticated: true,
       isLoading: false,
-      error: null
+      error: null,
     });
   };
 
   const addCredits = (amount: number, reason: string) => {
     if (!authState.user) return;
-    
-    const updatedUser = {
-      ...authState.user,
-      credits: authState.user.credits + amount
-    };
-    
-    localStorage.setItem('creator-dashboard-user', JSON.stringify(updatedUser));
-    
-    setAuthState({
-      user: updatedUser,
-      isAuthenticated: true,
-      isLoading: false,
-      error: null
-    });
-    
+
     toast.success(`${amount} Credits Added!`, {
-      description: reason
+      description: reason,
     });
-  };  
+  };
 
   return (
-    <AuthContext.Provider value={{ authState, login, register, logout, updateUser, addCredits }}>
+    <AuthContext.Provider
+      value={{
+        authState,
+        login,
+        register,
+        logout,
+        updateUser,
+        addCredits,
+        fetchUserData,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
@@ -241,7 +274,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 };

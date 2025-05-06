@@ -1,10 +1,10 @@
-
 export interface User {
   id: string;
+  _id?: string;
   name: string;
   email: string;
   credits: number;
-  role: 'user' | 'admin';
+  role: "user" | "admin";
   profileCompleted: boolean;
   lastLogin: string;
   avatar?: string;
@@ -14,23 +14,25 @@ export interface User {
 
 export interface Post {
   id: string;
-  source: 'twitter' | 'reddit';
+  _id?: string;
+  source: "twitter" | "reddit";
   author: string;
   content: string;
-  imageUrl?: string;
+  mediaUrl?: string;
   likes: number;
   comments: number;
   shares: number;
   url: string;
   createdAt: string;
   saved?: boolean;
+  reportedBy?: []
 }
 
 export interface CreditActivity {
   id: string;
   userId: string;
   amount: number;
-  type: 'login' | 'profile' | 'interaction' | 'admin' | 'other';
+  type: "login" | "profile" | "interaction" | "admin" | "other";
   description: string;
   createdAt: string;
 }

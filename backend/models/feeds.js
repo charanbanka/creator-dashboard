@@ -1,14 +1,3 @@
-// {
-//     _id: ObjectId,
-//     source: "twitter" | "reddit" | "linkedin",
-//     externalId: String,           // e.g., Tweet ID or Reddit post ID
-//     content: String,
-//     mediaUrl: String,
-//     author: String,
-//     postUrl: String,
-//     reportedBy: [ObjectId],       // user IDs who reported the post
-//     createdAt: Date
-//   }
 const mongoose = require("mongoose");
 const feedSchema = mongoose.Schema(
   {
@@ -20,6 +9,30 @@ const feedSchema = mongoose.Schema(
     externalId: {
       type: String,
       required: true,
+    },
+    title: {
+      type: String,
+      required: false,
+    },
+    author: {
+      type: String,
+      required: true,
+    },
+    url: {
+      type: String,
+      default: "",
+    },
+    likes: {
+      type: Number,
+      default: 0,
+    },
+    comments: {
+      type: Number,
+      default: 0,
+    },
+    shares: {
+      type: Number,
+      default: 0,
     },
     content: {
       type: String,
@@ -42,8 +55,14 @@ const feedSchema = mongoose.Schema(
       type: String,
       required: false,
     },
+    postCreatedAt: {
+      type: String,
+      required: false,
+    },
   },
   {
     timestamps: true,
   }
 );
+
+module.exports = mongoose.model("Feeds", feedSchema);

@@ -1,11 +1,3 @@
-// {
-//     _id: ObjectId,
-//     userId: ObjectId,
-//     type: "daily_login" | "profile_complete" | "interaction" | "admin_adjustment",
-//     amount: Number,
-//     createdAt: Date
-//   }
-
 const mongoose = require("mongoose");
 const creditLogSchema = mongoose.Schema(
   {
@@ -24,7 +16,11 @@ const creditLogSchema = mongoose.Schema(
       ],
       required: true,
     },
-    amount: {
+    action: {
+      type: String,
+      required: false,
+    },
+    credits: {
       type: Number,
       required: true,
     },

@@ -5,4 +5,4 @@ const constants = {
   SERVICE_UNAUTHORIZED: "unauthorized",
 };
 
-export default constants;
+module.exports = constants;

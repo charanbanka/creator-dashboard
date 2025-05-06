@@ -8,7 +8,6 @@ const authRouter = express.Router();
 authRouter.post(
   "/login",
   [
-    check("name", "Name is required").not().isEmpty(),
     check("email", "Please include a valid email").isEmail(),
     check("password", "Password must be at least 6 characters").isLength({
       min: 6,
@@ -20,6 +19,8 @@ authRouter.post(
 authRouter.post(
   "/register",
   [
+    check("name", "Name is required").exists(),
+    check("name", "Name must be at least 2 characters").isLength({ min: 2 }),
     check("email", "Please include a valid email").isEmail(),
     check("password", "Password is required").exists(),
   ],

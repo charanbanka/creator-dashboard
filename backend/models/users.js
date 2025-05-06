@@ -32,7 +32,7 @@ const userSchema = mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    dailyLoginDate: {
+    lastLogin: {
       type: Date,
       default: null,
     },
@@ -43,12 +43,12 @@ const userSchema = mongoose.Schema(
     savedPosts: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Post",
+        ref: "Feeds",
       },
     ],
     createdBy: {
       type: String,
-      required: true,
+      required: false,
     },
     updatedBy: {
       type: String,
