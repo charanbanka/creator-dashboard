@@ -25,25 +25,23 @@ if (!DB_URL) {
 app.use("/", express.static("public")); // Serve static files from 'public' directory
 app.use("/api", require("./routes/index")); // Use the routes defined in the routes directory
 
+// Default route for testing
+app.get("/health", (req, res) => {
+  res.send({ status: "ok", message: "Server is healthy" });
+});
+
 // Database connection
 mongoose
   .connect(DB_URL, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => {
     console.log("Database connected successfully");
 
-    // Start the server only after successful DB connection
-   
+    // ✅ Start server here
+    app.listen(PORT, () => {
+      console.log(`✅ Server running at port: ${PORT}`);
+    });
   })
   .catch((error) => {
     console.error("Database connection error:", error.message);
     process.exit(1); // Exit the process if DB connection fails
   });
-
-// Default route for testing
-app.get("/health", (req, res) => {
-  res.send({ status: "ok", message: "Server is healthy" });
-});
-
-app.listen(PORT, () => {
-  console.log(`Server running at port: ${PORT}`);
-});
