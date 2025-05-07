@@ -1,152 +1,167 @@
+# 🧑‍🎨 Creator Dashboard
 
-```markdown
-# 📊 Creator Dashboard
-
-A full-stack web application that allows **creators** to manage their profile, earn credits, and interact with personalized content fetched from **Reddit** and **Twitter** public APIs.
-
----
-
-## 🚀 Features
-
-### 🔐 User Authentication
-- Register/Login using JWT
-- Role-based access control (User, Admin)
-
-### 💰 Credit Points System
-- Earn credits for:
-  - Logging in daily
-  - Completing profile
-  - Interacting with feed
-- Admins can view and update user credits
-
-### 📰 Feed Aggregator
-- Fetch posts using **Reddit** and **Twitter** APIs
-- Infinite scrollable feed
-- Users can:
-  - Save content
-  - Share content (copy link/simulated share)
-  - Report inappropriate posts
-
-### 📋 Dashboard
-- **User View**:
-  - Credit stats
-  - Saved feed items
-  - Recent activity
-- **Admin View**:
-  - User analytics
-  - Feed interaction analytics
+A full-stack web app where creators can manage their profile, earn credit points, and interact with a personalized content feed. Built with **Node.js (Express)**, **React + Tailwind CSS**, and **MongoDB Atlas**.
 
 ---
 
 ## 📁 Project Structure
 
-```
-
-.
-├── backend
-│   ├── server.js
-│   ├── routes/
-│   ├── controllers/
-│   ├── services/
-│   ├── middlewares/
-│   ├── utils/
-│   └── common/
-│       ├── config.js
-│       └── constants.js
-└── frontend
-└── (Vite + React + Tailwind project)
-
+```bash
+creator-dashboard/
+├── backend/          # Express.js API server
+└── frontend/         # React + Tailwind client
 ````
 
 ---
 
-## 🛠️ Tech Stack
+## 🌐 Live Deployment
 
-- **Frontend**: React.js, Tailwind CSS, Vite
-- **Backend**: Node.js, Express.js
-- **Database**: MongoDB Atlas
-- **Deployment**:
-  - Frontend: Firebase Hosting / Google Cloud
-  - Backend: Google Cloud Run
+* **Backend:** Google Cloud Run
+* **Frontend:** Firebase Hosting or Google Cloud Hosting
+* **Database:** MongoDB Atlas
 
 ---
 
-## 🔧 Setup Instructions
+## 🔧 Local Development Setup
 
-### 🔙 Backend
+### 1️⃣ Prerequisites
+
+* Node.js >= 18.x
+* npm or yarn
+* MongoDB Atlas URI (or a local MongoDB instance)
+* \[Optional] Firebase CLI for frontend deployment
+* `.env` file in each folder
+
+---
+
+## 🚀 Backend (Node.js + Express)
+
+### ▶️ Getting Started
 
 ```bash
 cd backend
 npm install
-# Configure your `.env` file based on `.env.example`
-node server.js
-````
+```
 
-### 🌐 Frontend
+### ⚙️ Environment Variables
+
+Create a `.env` file in `backend/` with:
+
+```env
+PORT=5000
+MONGO_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/creator-dashboard
+JWT_SECRET=your_jwt_secret
+```
+
+### ✅ Start Backend
+
+```bash
+npm run dev
+```
+
+Server should run at: `http://localhost:8080`
+
+### 📋 Available Scripts
+
+* `npm run dev` - Starts server in dev mode with `nodemon`
+* `npm start` - Starts server in production mode
+
+---
+
+## 🎨 Frontend (React + Tailwind)
+
+### ▶️ Getting Started
 
 ```bash
 cd frontend
 npm install
+```
+
+### ⚙️ Environment Variables
+
+Create a `.env` file in `frontend/` with:
+
+```env
+VITE_API_GATEWAY_URL=http://localhost:8080
+```
+
+### ✅ Start Frontend
+
+```bash
 npm run dev
 ```
 
----
-
-## 🌍 Public APIs Used
-
-* **Reddit**: `https://www.reddit.com/r/{subreddit}/.json`
-* **Twitter**: Twitter API (random tweets or search endpoints – with API key if needed)
+App will run at: `http://localhost:5173` (or whatever Vite assigns)
 
 ---
 
-## 🔒 Environment Variables
+## 🌟 Core Features
 
-### Backend `.env`
+### 🔐 Authentication
 
-```
-PORT=5000
-MONGODB_URI=your_mongodb_uri
-JWT_SECRET=your_secret_key
-TWITTER_BEARER_TOKEN=your_token_if_using_official_api
-```
+* Register / Login with JWT
+* Role-based access: `User`, `Admin`
+
+### 💰 Credit System
+
+* Register = +50 credits
+* Daily login = +10 credits
+* Completing profile = +25 credits
+* Feed interaction = + credits
+* Save Post = +2 credits
+* Share Post = +3 credits
+* UnSave Post = -2 credits
+* admin update credits directly applied to user credits
+
+### 📰 Feed Aggregator
+
+* Pulls from **Reddit**, **Twitter**, and **LinkedIn (mocked)** using public APIs
+* Users can:
+
+  * Save content
+  * Share (copy link)
+  * Report inappropriate posts
+
+### 📊 Dashboard
+
+* **User View:** Credit stats, saved feed, recent activity
+* **Admin View:** User analytics, feed engagement overview
 
 ---
 
-## 🧪 Testing
+## 🚀 Deployment (Optional for Local)
 
-> Basic unit and integration tests can be added in `/tests` or with tools like Jest, Supertest, and React Testing Library.
-
----
-
-## 📡 Deployment
-
-1. **Backend**: Deploy `server.js` on Google Cloud Run
-2. **Frontend**: Deploy build folder (`npm run build`) to Firebase Hosting or Google Cloud Hosting
+* Backend: [GCP Cloud Run Docs](https://cloud.google.com/run/docs)
+* Frontend: [Firebase Hosting Docs](https://firebase.google.com/docs/hosting)
 
 ---
 
-## 👥 Roles
+## 🧪 Testing (Optional)
 
-| Role  | Capabilities                                       |
-| ----- | -------------------------------------------------- |
-| User  | View & interact with feed, earn points             |
-| Admin | Manage users, view analytics, edit credit balances |
+You may include:
+
+* Backend unit tests: Jest or Mocha
+* Frontend tests: React Testing Library
 
 ---
 
-## 📄 License
+## 📎 License
 
 MIT
 
 ---
 
-## 🧑‍💻 Author
+## 🤝 Contributing
 
-Created as part of Assignment 1 – Creator Dashboard
+1. Fork this repo
+2. Create a new branch (`feat/new-feature`)
+3. Commit your changes
+4. Open a pull request
 
 ---
 
-```
+## 🙋‍♂️ Questions?
 
-Would you like a sample `.env.example` and deployment `firebase.json` or `Dockerfile` too?
+Open an issue or reach out to the maintainer.
+
 ```
