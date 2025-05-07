@@ -13,6 +13,7 @@ const creditLogSchema = mongoose.Schema(
         "profile_complete",
         "interaction",
         "admin_adjustment",
+        "register"
       ],
       required: true,
     },

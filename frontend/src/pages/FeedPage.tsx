@@ -23,7 +23,7 @@ import constants from "@/common/const";
 // Mock posts that would come from API in a real application
 
 const FeedPage: React.FC = () => {
-  const { authState, addCredits, updateUser,fetchUserData } = useAuth();
+  const { authState, addCredits, updateUser, fetchUserData } = useAuth();
   const [posts, setPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState<
@@ -135,7 +135,7 @@ const FeedPage: React.FC = () => {
         method: "POST",
       });
       console.log("resp=>", resp);
-      fetchUserData()
+      fetchUserData();
       toast[post.saved ? "info" : "success"](
         post.saved
           ? "Post removed from saved collection"
@@ -149,7 +149,9 @@ const FeedPage: React.FC = () => {
     // In a real app, this would open a share dialog
     // For now, we'll just simulate copying to clipboard
     navigator.clipboard.writeText(
-      `Check out this post by ${post.author}: ${post.content} ${post.url}`
+      post.url
+        ? post.url
+        : `Check out this post by ${post.author}: ${post.content}`
     );
     let body = {
       ...post,
@@ -165,7 +167,7 @@ const FeedPage: React.FC = () => {
       method: "POST",
     });
     console.log("resp=>", resp);
-    fetchUserData()
+    fetchUserData();
     toast.success("Link copied to clipboard", {
       description: "+3 credits earned for sharing content",
     });

@@ -76,6 +76,9 @@ const CreditsPage: React.FC = () => {
             case "daily_login":
               description = "Daily login bonus";
               break;
+            case "register":
+              description = "Registration bonus";
+              break;
             case "profile_complete":
               description = "Profile Completed!";
               break;

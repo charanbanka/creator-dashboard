@@ -3,34 +3,7 @@ import { toast } from "sonner";
 import { AuthState, User } from "../types";
 import ServiceRequest from "../lib/service-request";
 import { BASE_URL } from "../common/config";
-
-// Mock user data - This would come from a backend API in a real app
-const MOCK_USERS: User[] = [
-  {
-    id: "1",
-    name: "John Doe",
-    email: "user@example.com",
-    credits: 150,
-    role: "user",
-    profileCompleted: true,
-    lastLogin: new Date().toISOString(),
-    avatar: "https://images.unsplash.com/photo-1599566150163-29194dcaad36",
-    createdAt: "2023-01-15T09:24:00Z",
-    savedPosts: ["post1", "post3"],
-  },
-  {
-    id: "2",
-    name: "Admin User",
-    email: "admin@example.com",
-    credits: 500,
-    role: "admin",
-    profileCompleted: true,
-    lastLogin: new Date().toISOString(),
-    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e",
-    createdAt: "2023-01-10T10:24:00Z",
-    savedPosts: [],
-  },
-];
+import { useNavigate } from "react-router-dom";
 
 interface AuthContextType {
   authState: AuthState;
@@ -40,6 +13,7 @@ interface AuthContextType {
   updateUser: (userData: Partial<User>) => void;
   addCredits: (amount: number, reason: string) => void;
   fetchUserData: () => Promise<void>;
+  updateAuthStateError: (error: any) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -109,13 +83,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
       // Check if the response indicates success
       if (response.data.status === "success") {
+        let data = response.data.data;
         // Save user data to localStorage
-        localStorage.setItem("token", response.data.data.token);
+        localStorage.setItem("token", data.token);
 
         //fetch another api for user data
         // Update auth state
         setAuthState({
-          user: response.data.data.user,
+          user: data.user,
           isAuthenticated: true,
           isLoading: false,
           error: null,
@@ -123,7 +98,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
         // Show success toast
         toast.success("Welcome to Creator Dashboard!", {
-          description: "You've received 50 starter credits.",
+          description: data?.hasLoggedInToday
+            ? "You've received 10 credits for daily login bonus."
+            : null,
         });
       } else {
         // Handle backend error response
@@ -191,7 +168,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
         // Show success toast
         toast.success("Welcome to Creator Dashboard!", {
-          description: "You've received 50 starter credits.",
+          description: response.data?.data?.hasLoggedInToday
+            ? "You've received 60 credits for register and daily login bonus."
+            : null,
         });
       } else {
         // Handle backend error response
@@ -254,6 +233,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     });
   };
 
+  const updateAuthStateError = (error = null) => {
+    setAuthState((prev) => {
+      return { ...prev, error: error };
+    });
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -264,6 +249,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         updateUser,
         addCredits,
         fetchUserData,
+        updateAuthStateError,
       }}
     >
       {children}

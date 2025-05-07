@@ -93,8 +93,6 @@ const DashboardPage: React.FC = () => {
     }
   }
 
-  
-
   return (
     <DashboardLayout>
       <div className="space-y-6 animate-fade-in">
@@ -156,7 +154,9 @@ const DashboardPage: React.FC = () => {
                 <p className="text-sm font-medium text-muted-foreground">
                   Next Milestone
                 </p>
-                <h3 className="text-2xl font-bold">200 Credits</h3>
+                <h3 className="text-2xl font-bold">
+                  {Math.floor((user?.credits || 0) / 100) * 100 + 100} Credits
+                </h3>
               </div>
               <TrendingUp className="h-8 w-8 text-amber-500" />
             </CardContent>

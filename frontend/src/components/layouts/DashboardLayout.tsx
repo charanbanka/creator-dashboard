@@ -108,8 +108,8 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
           <div className="p-5">
             <div className="flex items-center space-x-3">
               <Avatar>
-                {user?.avatar ? (
-                  <AvatarImage src={user.avatar} />
+                {user?.profilePicture ? (
+                  <AvatarImage src={user.profilePicture} />
                 ) : (
                   <AvatarFallback className="bg-creator-dark/40 text-white">
                     {user?.name?.charAt(0) || 'U'}

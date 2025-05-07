@@ -26,57 +26,6 @@ import {
 import ServiceRequest from "@/lib/service-request";
 import { BASE_URL } from "@/common/config";
 
-// Mock users - this would come from an API in a real app
-const MOCK_USERS: UserType[] = [
-  {
-    id: "1",
-    name: "John Doe",
-    email: "user@example.com",
-    credits: 150,
-    role: "user",
-    profileCompleted: true,
-    lastLogin: new Date().toISOString(),
-    avatar: "https://images.unsplash.com/photo-1599566150163-29194dcaad36",
-    createdAt: "2023-01-15T09:24:00Z",
-    savedPosts: ["post1", "post3"],
-  },
-  {
-    id: "2",
-    name: "Admin User",
-    email: "admin@example.com",
-    credits: 500,
-    role: "admin",
-    profileCompleted: true,
-    lastLogin: new Date().toISOString(),
-    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e",
-    createdAt: "2023-01-10T10:24:00Z",
-    savedPosts: [],
-  },
-  {
-    id: "3",
-    name: "Jane Smith",
-    email: "jane@example.com",
-    credits: 75,
-    role: "user",
-    profileCompleted: false,
-    lastLogin: new Date(Date.now() - 86400000 * 2).toISOString(),
-    createdAt: "2023-02-20T14:30:00Z",
-    savedPosts: ["post2"],
-  },
-  {
-    id: "4",
-    name: "Robert Johnson",
-    email: "robert@example.com",
-    credits: 220,
-    role: "user",
-    profileCompleted: true,
-    lastLogin: new Date(Date.now() - 86400000 * 5).toISOString(),
-    avatar: "https://images.unsplash.com/photo-1527082395-e939b847da0d",
-    createdAt: "2023-01-25T11:15:00Z",
-    savedPosts: [],
-  },
-];
-
 const AdminUsersPage: React.FC = () => {
   const { authState } = useAuth();
   const [users, setUsers] = useState([]);
@@ -214,9 +163,9 @@ const AdminUsersPage: React.FC = () => {
                   >
                     <div className="flex items-center gap-3">
                       <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center overflow-hidden">
-                        {user.avatar ? (
+                        {user.profilePicture ? (
                           <img
-                            src={user.avatar}
+                            src={user.profilePicture}
                             alt={user.name}
                             className="h-full w-full object-cover"
                           />

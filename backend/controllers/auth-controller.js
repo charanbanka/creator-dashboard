@@ -32,7 +32,7 @@ async function register(req, res) {
       name,
       email,
       password,
-      credits: 10,
+      credits: 60,
       role: email == "admin@gmail.com" ? "admin" : "user",
       lastLogin: new Date().toISOString(),
       profileCompleted: false,
@@ -57,6 +57,13 @@ async function register(req, res) {
 
     await createCreditLog({
       userId: user._id,
+      credits: 50,
+      userInfo: user,
+      type: "register",
+    });
+
+    await createCreditLog({
+      userId: user._id,
       credits: 10,
       userInfo: user,
       type: "daily_login",
@@ -67,10 +74,11 @@ async function register(req, res) {
       action: "daily_login",
       userInfo: user,
     });
+
     res.status(201).json({
       status: SERVICE_SUCCESS,
       message: "User registered successfully",
-      data: { token, user },
+      data: { token, user, hasLoggedInToday: true },
     });
   } catch (err) {
     console.error(err.message);
@@ -117,7 +125,9 @@ async function login(req, res) {
     //check condition if last login time is not today
     const lastLoginDate = new Date(user.lastLogin).toDateString();
     const todayDate = new Date().toDateString();
+    let hasLoggedInToday = false;
     if (lastLoginDate !== todayDate) {
+      hasLoggedInToday = true;
       user.credits = user.credits + 10; // Add 10 credits for logging in
       //update credit logs
       await createCreditLog({
@@ -143,7 +153,7 @@ async function login(req, res) {
     res.status(200).json({
       status: SERVICE_SUCCESS,
       message: "User Logged in successfully",
-      data: { token, user },
+      data: { token, user, hasLoggedInToday },
     });
   } catch (err) {
     console.error(err.message);

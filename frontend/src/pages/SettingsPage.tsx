@@ -49,9 +49,13 @@ const SettingsPage: React.FC = () => {
     });
     if (resp.data.status === constants.SERVICE_SUCCESS) {
       fetchUserData();
-      toast.success("Profile updated successfully");
+      toast.success("Profile updated successfully", {
+        description: profile?.profilePicture
+          ? "+25 credits added for profile completion"
+          : "",
+      });
     } else {
-      toast.error(resp.data?.message || "Server Error")
+      toast.error(resp.data?.message || "Server Error");
     }
   };
 
