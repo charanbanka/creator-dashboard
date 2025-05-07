@@ -10,6 +10,7 @@ export interface User {
   avatar?: string;
   createdAt: string;
   savedPosts: string[];
+  profilePicture?: string;
 }
 
 export interface Post {

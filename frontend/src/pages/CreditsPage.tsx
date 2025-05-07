@@ -100,9 +100,7 @@ const CreditsPage: React.FC = () => {
 
               break;
             case "admin_adjustment":
-              description = `Admin adjustment: ${
-                log.action || "No details provided"
-              }`;
+              description = `Admin adjustmented Credits`;
               break;
             default:
               description = log.action || "Performed an action";

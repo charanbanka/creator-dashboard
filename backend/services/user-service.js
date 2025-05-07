@@ -79,5 +79,100 @@ async function updateUserProfile(reqInfo) {
     };
   }
 }
+/**
+ * Function to fetch all users, optionally filtering by name
+ * @param {Object} reqInfo - Object containing optional name and userInfo
+ * @returns {Object} - Status and list of users or an error message
+ */
+async function fetchAllUsers(reqInfo) {
+  let { name } = reqInfo;
+  try {
+    // Build the query object
+    const query = name
+      ? {
+          $or: [
+            { name: { $regex: name, $options: "i" } },
+            { email: { $regex: name, $options: "i" } },
+          ],
+        }
+      : {}; // Case-insensitive search by name or email // Case-insensitive search by name
+    console.log("query", query);
+    // Fetch users from the database
+    const users = await Users.find(query, "-password"); // Exclude the password field for security
 
-module.exports = { updateUserProfile };
+    if (!users || users.length === 0) {
+      return {
+        status: SERVICE_FAILURE,
+        message: "No users found",
+      };
+    }
+
+    return {
+      status: SERVICE_SUCCESS,
+      data: users,
+    };
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    return {
+      status: SERVICE_FAILURE,
+      message: "An error occurred while fetching users",
+    };
+  }
+}
+/**
+ * Function to update user credits
+ * @param {Object} reqInfo - Object containing userId, credits, and adminInfo
+ * @returns {Object} - Status and updated user or an error message
+ */
+async function updateUserCredits(reqInfo) {
+  const { userId, credits, adminInfo } = reqInfo;
+
+  try {
+    // Fetch the user to ensure they exist
+    const user = await Users.findById(userId);
+
+    if (!user) {
+      return {
+        status: SERVICE_FAILURE,
+        message: "User not found",
+      };
+    }
+
+    // Update the user's credits
+    const updatedUser = await Users.findByIdAndUpdate(
+      userId,
+      { credits }, // Increment or decrement credits
+      { new: true } // Return the updated document
+    );
+
+    if (!updatedUser) {
+      return {
+        status: SERVICE_FAILURE,
+        message: "Failed to update user credits",
+      };
+    }
+
+    // Log the credit adjustment in the credit logs
+    await createCreditLog({
+      userId,
+      credits: credits - user.credits,
+      userInfo: adminInfo,
+      type: "admin_adjustment",
+      action: credits - user.credits >= 0 ? "credit_added" : "credit_removed",
+    });
+
+    return {
+      status: SERVICE_SUCCESS,
+      message: "User credits updated successfully",
+      data: updatedUser,
+    };
+  } catch (error) {
+    console.error("Error updating user credits:", error);
+    return {
+      status: SERVICE_FAILURE,
+      message: "An error occurred while updating user credits",
+    };
+  }
+}
+
+module.exports = { updateUserProfile, fetchAllUsers, updateUserCredits };

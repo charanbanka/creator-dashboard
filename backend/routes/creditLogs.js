@@ -1,6 +1,6 @@
 const express = require("express");
 const { getCreditLogsByUserIdController } = require("../controllers/creditlog-controller");
-const isAuthenticated = require("../middleware/index"); // Middleware to authenticate users
+const {isAuthenticated} = require("../middleware/index"); // Middleware to authenticate users
 
 const router = express.Router();
 

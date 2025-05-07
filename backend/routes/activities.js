@@ -3,7 +3,7 @@ const {
   createActivityController,
   getActivitiesByUserIdController,
 } = require("../controllers/activity-controller");
-const isAuthenticated = require("../middleware/index"); // Middleware to authenticate users
+const {isAuthenticated} = require("../middleware/index"); // Middleware to authenticate users
 
 const activityRouter = express.Router();
 

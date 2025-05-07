@@ -1,6 +1,6 @@
 //create two routes for feed controller
 const express = require("express");
-const isAuthenticated = require("../middleware/index");
+const {isAuthenticated} = require("../middleware/index");
 const {
   getSavedPostsController,
   saveFeedController,
