@@ -1,6 +1,3 @@
-Here’s a complete `README.md` file you can use for your **Creator Dashboard** project, assuming your repo has a `frontend` and `backend` folder and you've structured it as described:
-
----
 
 ```markdown
 # 📊 Creator Dashboard
