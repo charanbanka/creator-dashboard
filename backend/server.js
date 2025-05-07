@@ -14,7 +14,7 @@ app.use(cors());
 app.use(helmet());
 
 // Environment variables
-const PORT = process.env.PORT || 5000;
+const PORT = 8080;
 const DB_URL = process.env.DB_URL;
 
 if (!DB_URL) {
